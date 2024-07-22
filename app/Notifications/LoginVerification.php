@@ -26,18 +26,25 @@ class LoginVerification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return [TwilioChannel::class];
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toTwilio(object $notifiable)
     {
-        return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+        //კოდის გენრირება 
+        $loginCode = rand(11111, 99999);
+
+        //კოდის შენახვა მომხმარებელში
+        $notifiable->update([
+            'login_code' => $loginCode
+        ]);
+
+        // კოდის გაგზავნა 
+        return (new TilioSmsMassage())
+        ->content("თქვენი ავტორიზაციის ცოდი არის:{$loginCode}");
     }
 
     /**
